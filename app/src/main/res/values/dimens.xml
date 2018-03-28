@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="degree_size">180sp</dimen>
+    <dimen name="location_size">26sp</dimen>
+    <dimen name="time_size">18sp</dimen>
+</resources>
