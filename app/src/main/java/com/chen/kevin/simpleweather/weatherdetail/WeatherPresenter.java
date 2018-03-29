@@ -15,7 +15,6 @@ public class WeatherPresenter implements WeatherContract.Presenter {
 
     @Override
     public void start() {
-
     }
 
     @Override

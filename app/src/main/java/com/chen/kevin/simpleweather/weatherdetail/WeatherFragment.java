@@ -49,6 +49,10 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
                 }
             }
         });
+
+        // set up presenter
+        mPresenter = new WeatherPresenter(this);
+
         return view;
     }
 
