@@ -4,8 +4,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -25,8 +31,9 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     @BindView(R.id.text_location) TextView mLocationView;
     @BindView(R.id.text_temperature) TextView mTemperatureView;
     @BindView(R.id.text_time) TextView mTimeView;
-    @BindView(R.id.icon_weather_condition) ImageView mWeatherIconView;
+    @BindView(R.id.icon_current_weather) ImageView mWeatherIconView;
     @BindView(R.id.recycler_view_daily) RecyclerView mRecyclerView;
+    @BindView(R.id.toolbar) Toolbar mToolbar;
 
     private WeatherContract.Presenter mPresenter;
 
@@ -37,8 +44,13 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_weather, container, false);
         ButterKnife.bind(this, view);
+
+        // set up toolbar
+        ((AppCompatActivity)getActivity()).setSupportActionBar(mToolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar()
+                .setDisplayShowTitleEnabled(false);
 
         // set up swipe refresh linstener
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -53,9 +65,87 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
         // set up presenter
         mPresenter = new WeatherPresenter(this);
 
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
+
+        // set up recycler view adapter
+        mRecyclerView.setAdapter(new WeatherAdapter(new DailyPresenter()));
         return view;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.setting:
+                // TODO: 2018/3/30
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    class WeatherHolder extends RecyclerView.ViewHolder implements WeatherDailyContract.View{
+        @BindView(R.id.text_day) TextView mDayView;
+        @BindView(R.id.icon_weather_condition) ImageView mWeatherView;
+        @BindView(R.id.text_temperature_range) TextView mDegreeRangeView;
+
+        public WeatherHolder(LayoutInflater layoutInflater, ViewGroup parent) {
+            super(layoutInflater.inflate(R.layout.list_item_forecast_daily, parent, false));
+            ButterKnife.bind(this, itemView);
+        }
+
+
+        @Override
+        public void setPresenter(WeatherDailyContract.Presenter presenter) {
+            // do nothing
+        }
+
+        @Override
+        public void showDay(int dayResId) {
+            mDayView.setText(getResources().getString(dayResId));
+        }
+
+        @Override
+        public void showWeatherIcon(int weatherIconResId) {
+            mWeatherView.setImageDrawable(getResources().getDrawable(weatherIconResId));
+        }
+
+        @Override
+        public void showTemperatureRange(int low, int high) {
+            String rangeFormat = getResources().getString(R.string.temperature_range);
+            String temperatureRange = String.format(rangeFormat, low, high);
+            mDegreeRangeView.setText(temperatureRange);
+        }
+    }
+
+
+    private class WeatherAdapter extends RecyclerView.Adapter<WeatherHolder> {
+        private WeatherDailyContract.Presenter mDailyPresenter;
+
+        public WeatherAdapter(WeatherDailyContract.Presenter presenter) {
+            mDailyPresenter = presenter;
+        }
+
+        @Override
+        public WeatherHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            WeatherHolder holder = new WeatherHolder(getLayoutInflater(), parent);
+            return holder;
+        }
+
+        @Override
+        public void onBindViewHolder(WeatherHolder holder, int position) {
+            mDailyPresenter.bindData(holder, position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mDailyPresenter.getItemCount();
+        }
+    }
     @Override
     public void setPresenter(WeatherContract.Presenter presenter) {
         mPresenter = presenter;

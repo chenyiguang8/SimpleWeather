@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
-import com.chen.kevin.simpleweather.weatherdetail.WeatherFragment;
 
 /**
  * Created by Ms Chen on 2018/3/28.
@@ -18,12 +17,12 @@ public abstract class SingleFragmentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fragment);
 
-        FragmentManager fg = getSupportFragmentManager();
-        Fragment fragment = fg.findFragmentById(R.id.fragment_container);
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
 
         if (fragment == null) {
             fragment = createFragment();
-            fg.beginTransaction()
+            fm.beginTransaction()
                     .add(R.id.fragment_container, fragment)
                     .commit();
         }

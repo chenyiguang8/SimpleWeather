@@ -70,6 +70,7 @@
                     android:textSize="@dimen/time_size"/>
 
                 <ImageView
+                    android:id="@+id/icon_current_weather"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@id/text_location"

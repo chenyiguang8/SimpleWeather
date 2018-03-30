@@ -2,28 +2,34 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:layout_marginRight="8dp">
 
     <TextView
         android:id="@+id/text_day"
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/weather_list_item_width"
         android:layout_height="0dp"
         android:layout_weight="1"
         tools:text="@string/monday"
-        android:textSize="20sp"/>
+        android:textSize="16sp"
+        android:gravity="center"
+        android:textColor="@color/font"/>
     
     <ImageView
         android:id="@+id/icon_weather_condition"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        tools:src="@drawable/cloudy_night"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        tools:src="@drawable/cloudy_night"
+        android:layout_gravity="center"/>
 
     <TextView
         android:id="@+id/text_temperature_range"
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/weather_list_item_width"
         android:layout_height="0dp"
         android:layout_weight="1"
-        tools:text="28/66"/>
+        tools:text="28°~66°"
+        android:gravity="center"/>
 </LinearLayout>
