@@ -5,10 +5,6 @@
               android:layout_height="wrap_content"
               android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar_main"/>
-
     <android.support.v4.widget.SwipeRefreshLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -32,7 +28,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:layout_centerVertical="true"
+                    android:layout_below="@id/text_location"
+                    android:layout_marginTop="20dp"
                     android:text="68"
                     android:textColor="@color/font"
                     android:textSize="@dimen/degree_size"/>
@@ -49,10 +46,8 @@
                 <TextView
                     android:id="@+id/text_location"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@id/text_temperature"
+                    android:layout_height="100dp"
                     android:layout_alignLeft="@id/text_temperature"
-                    android:layout_alignParentTop="true"
                     android:layout_alignRight="@id/text_temperature"
                     android:gravity="center"
                     android:text="ShangHai"
