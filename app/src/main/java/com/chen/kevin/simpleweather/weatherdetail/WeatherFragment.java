@@ -33,7 +33,6 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     @BindView(R.id.text_time) TextView mTimeView;
     @BindView(R.id.icon_current_weather) ImageView mWeatherIconView;
     @BindView(R.id.recycler_view_daily) RecyclerView mRecyclerView;
-    @BindView(R.id.toolbar) Toolbar mToolbar;
 
     private WeatherContract.Presenter mPresenter;
 
@@ -47,10 +46,6 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
         View view = inflater.inflate(R.layout.fragment_weather, container, false);
         ButterKnife.bind(this, view);
 
-        // set up toolbar
-        ((AppCompatActivity)getActivity()).setSupportActionBar(mToolbar);
-        ((AppCompatActivity)getActivity()).getSupportActionBar()
-                .setDisplayShowTitleEnabled(false);
 
         // set up swipe refresh linstener
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -73,20 +68,6 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
         return view;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_main, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.setting:
-                // TODO: 2018/3/30
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     class WeatherHolder extends RecyclerView.ViewHolder implements WeatherDailyContract.View{
         @BindView(R.id.text_day) TextView mDayView;
