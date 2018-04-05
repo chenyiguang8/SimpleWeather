@@ -1,23 +1,28 @@
 package com.chen.kevin.simpleweather.weatherdetail;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chen.kevin.simpleweather.R;
+import com.chen.kevin.simpleweather.data.weather.Forecast;
+import com.chen.kevin.simpleweather.data.weather.WeatherDaily;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,6 +32,12 @@ import butterknife.ButterKnife;
  */
 
 public class WeatherFragment extends Fragment implements WeatherContract.View{
+    private static final int  LOCATION_PERMISSION_REQUEST = 1;
+    private static final String[] LOCATION_PERMISSION = {
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+    };
+
     @BindView(R.id.refresh) SwipeRefreshLayout mRefreshLayout;
     @BindView(R.id.text_location) TextView mLocationView;
     @BindView(R.id.text_temperature) TextView mTemperatureView;
@@ -35,6 +46,7 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     @BindView(R.id.recycler_view_daily) RecyclerView mRecyclerView;
 
     private WeatherContract.Presenter mPresenter;
+    private WeatherAdapter mWeatherAdapter;
 
     public static Fragment newInstance() {
         return new WeatherFragment();
@@ -47,29 +59,26 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
         ButterKnife.bind(this, view);
 
 
+        // set up presenter
+        mPresenter = new WeatherPresenter(getContext(), this);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.HORIZONTAL, false));
+
+        checkLocationPermission();
+
         // set up swipe refresh linstener
         mRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (mPresenter.updateWeather()) {
-                    mRefreshLayout.setRefreshing(false);
-                }
+                mPresenter.updateWeather();
             }
         });
 
-        // set up presenter
-        mPresenter = new WeatherPresenter(this);
-
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.HORIZONTAL, false));
-
-        // set up recycler view adapter
-        mRecyclerView.setAdapter(new WeatherAdapter(new DailyPresenter()));
         return view;
     }
 
 
-    class WeatherHolder extends RecyclerView.ViewHolder implements WeatherDailyContract.View{
+    class WeatherHolder extends RecyclerView.ViewHolder{
         @BindView(R.id.text_day) TextView mDayView;
         @BindView(R.id.icon_weather_condition) ImageView mWeatherView;
         @BindView(R.id.text_temperature_range) TextView mDegreeRangeView;
@@ -79,36 +88,24 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
             ButterKnife.bind(this, itemView);
         }
 
+        public void bind(WeatherDaily weatherDaily) {
+            mDayView.setText(weatherDaily.getDayOfTheWeek());
+            mWeatherView.setImageDrawable(getResources().getDrawable(weatherDaily.getIconResId()));
 
-        @Override
-        public void setPresenter(WeatherDailyContract.Presenter presenter) {
-            // do nothing
-        }
-
-        @Override
-        public void showDay(int dayResId) {
-            mDayView.setText(getResources().getString(dayResId));
-        }
-
-        @Override
-        public void showWeatherIcon(int weatherIconResId) {
-            mWeatherView.setImageDrawable(getResources().getDrawable(weatherIconResId));
-        }
-
-        @Override
-        public void showTemperatureRange(int low, int high) {
+            // set temperature range
             String rangeFormat = getResources().getString(R.string.temperature_range);
-            String temperatureRange = String.format(rangeFormat, low, high);
+            String temperatureRange = String.format(rangeFormat, weatherDaily.getLow(),
+                                                  weatherDaily.getHigh());
             mDegreeRangeView.setText(temperatureRange);
         }
     }
 
 
     private class WeatherAdapter extends RecyclerView.Adapter<WeatherHolder> {
-        private WeatherDailyContract.Presenter mDailyPresenter;
+        List<WeatherDaily> weatherDailyList;
 
-        public WeatherAdapter(WeatherDailyContract.Presenter presenter) {
-            mDailyPresenter = presenter;
+        public WeatherAdapter(Forecast forecast) {
+            weatherDailyList = forecast.getDailyForecast();
         }
 
         @Override
@@ -119,14 +116,15 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
 
         @Override
         public void onBindViewHolder(WeatherHolder holder, int position) {
-            mDailyPresenter.bindData(holder, position);
+            holder.bind(weatherDailyList.get(position));
         }
 
         @Override
         public int getItemCount() {
-            return mDailyPresenter.getItemCount();
+            return weatherDailyList.size();
         }
     }
+
     @Override
     public void setPresenter(WeatherContract.Presenter presenter) {
         mPresenter = presenter;
@@ -143,24 +141,73 @@ public class WeatherFragment extends Fragment implements WeatherContract.View{
     }
 
     @Override
-    public void showUpdateTime(String time) {
+    public void showUpdateTime(String preciseTime) {
         String timeInfoFormat = getResources().getString(R.string.update_time_info);
-        String timeInfo = String.format(timeInfoFormat, time);
+        String timeInfo = String.format(timeInfoFormat, preciseTime);
         mTimeView.setText(timeInfo);
     }
 
     @Override
     public void showTemperature(int degree) {
-        mTemperatureView.setText(degree);
+        mTemperatureView.setText(degree + "");
     }
 
     @Override
-    public void showWeatherCondition(String location, int iconResId, String time, int degree) {
+    public void showCurrentWeather(String location, int iconResId, String preciseTime, int degree) {
         showLocation(location);
         showWeatherIcon(iconResId);
-        showUpdateTime(time);
+        showUpdateTime(preciseTime);
         showTemperature(degree);
-        // TODO: 2018/3/28  
+    }
 
+    @Override
+    public void setUpAdapter(Forecast forecast) {
+        mWeatherAdapter = new WeatherAdapter(forecast);
+        mRecyclerView.setAdapter(mWeatherAdapter);
+    }
+
+    @Override
+    public void finishRefresh() {
+        mRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST:
+                if (!hasLocationPermission()) {
+                    // show a message if the user deny permission
+                    Toast.makeText(getActivity(), "location permission denied", Toast.LENGTH_SHORT)
+                            .show();
+                }
+
+                mPresenter.updateWeather();
+                break;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    /**
+     * check for location permission, if no permission, request it
+     */
+    private void checkLocationPermission() {
+        if (!hasLocationPermission()) {
+            // check if the user has been asked about this permission and denied it
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // explain to the user why permission is needed
+            }
+
+            requestPermissions(LOCATION_PERMISSION,
+                    LOCATION_PERMISSION_REQUEST);
+
+        } else {
+            mPresenter.updateWeather();
+        }
+    }
+
+    private boolean hasLocationPermission() {
+        return ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
     }
 }

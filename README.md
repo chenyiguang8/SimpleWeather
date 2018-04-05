@@ -1,2 +1,2 @@
 # SimpleWeather
-A simple weather android app with clean interface
+A simple weatherDaily android app with clean interface
