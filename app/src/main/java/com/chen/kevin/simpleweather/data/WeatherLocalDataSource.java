@@ -10,7 +10,6 @@ import com.chen.kevin.simpleweather.data.database.WeatherDbHelper;
 import com.chen.kevin.simpleweather.data.database.WeatherDbSchema.WeatherTable;
 import com.chen.kevin.simpleweather.data.weather.CurrentWeather;
 import com.chen.kevin.simpleweather.data.weather.Forecast;
-import com.chen.kevin.simpleweather.data.weather.Weather;
 import com.chen.kevin.simpleweather.data.weather.WeatherDaily;
 import com.chen.kevin.simpleweather.util.WeatherPreferences;
 
@@ -86,7 +85,7 @@ public class WeatherLocalDataSource implements WeatherDataSource {
     }
 
     private void refreshDailyForecast(List<WeatherDaily> weatherDailyList) {
-        deleteDailyForecast(weatherDailyList);
+        deleteDailyForecast();
         insertDailyForecast(weatherDailyList);
     }
 
@@ -95,6 +94,10 @@ public class WeatherLocalDataSource implements WeatherDataSource {
         WeatherPreferences.setStoredWeather(mContext, weather);
     }
 
+    /**
+     * insert daily forecast into the database
+     * @param weatherDailyList
+     */
     private void insertDailyForecast(List<WeatherDaily> weatherDailyList) {
         for (WeatherDaily weather : weatherDailyList) {
             mDatabase.insert(WeatherTable.TABLE_NAME,
@@ -103,12 +106,13 @@ public class WeatherLocalDataSource implements WeatherDataSource {
         }
     }
 
-    private void deleteDailyForecast(List<WeatherDaily> weatherDailyList) {
-        for (WeatherDaily weather : weatherDailyList) {
+    /**
+     * delete all all data in the database
+     */
+    private void deleteDailyForecast() {
             mDatabase.delete(WeatherTable.TABLE_NAME,
                     null,
                     null);
-        }
     }
 
     /**
@@ -131,7 +135,7 @@ public class WeatherLocalDataSource implements WeatherDataSource {
 
     private ContentValues getContentValus(WeatherDaily weatherDaily) {
         ContentValues values = new ContentValues();
-        values.put(WeatherTable.Cols.TIME, weatherDaily.getpreciseTime());
+        values.put(WeatherTable.Cols.TIME, weatherDaily.getTime());
         values.put(WeatherTable.Cols.TIMEZONE, weatherDaily.getTimeZone());
         values.put(WeatherTable.Cols.WEATHER_CONDITION, weatherDaily.getIcon());
         values.put(WeatherTable.Cols.TEMPERATURE_LOW, weatherDaily.getLow());
