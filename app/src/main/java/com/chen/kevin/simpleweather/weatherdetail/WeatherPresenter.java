@@ -1,25 +1,19 @@
 package com.chen.kevin.simpleweather.weatherdetail;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
 import com.chen.kevin.simpleweather.data.WeatherDataSource;
 import com.chen.kevin.simpleweather.data.WeatherRepository;
 import com.chen.kevin.simpleweather.data.weather.CurrentWeather;
 import com.chen.kevin.simpleweather.data.weather.Forecast;
-
-import static android.content.Context.CONNECTIVITY_SERVICE;
 
 /**
  * Created by Ms Chen on 2018/3/28.
@@ -53,7 +47,7 @@ public class WeatherPresenter implements WeatherContract.Presenter {
                         CurrentWeather currentWeather = forecast.getCurrentWeather();
                         String location = currentWeather.getCity();
                         int iconResId = currentWeather.getIconResId();
-                        String preciseTime = currentWeather.getpreciseTime();
+                        String preciseTime = currentWeather.getPreciseTime();
                         int temperature = currentWeather.getTemperature();
 
                         mFragment.showCurrentWeather(location, iconResId, preciseTime, temperature);

@@ -91,7 +91,7 @@ public class Weather {
         return iconResId;
     }
 
-   public String getpreciseTime() {
+   public String getPreciseTime() {
        SimpleDateFormat formatter = new SimpleDateFormat("h:mm a");
        formatter.setTimeZone(TimeZone.getTimeZone(mTimeZone));
        Date dateTime = new Date(mTime * 1000);
