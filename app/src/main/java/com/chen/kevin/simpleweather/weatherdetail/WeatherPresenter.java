@@ -63,18 +63,4 @@ public class WeatherPresenter implements WeatherContract.Presenter {
             }
         });
     }
-
-    private Location getLocation() {
-        Location location = null;
-
-        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        String provider = locationManager.getBestProvider(new Criteria(), true);
-
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            location = locationManager.getLastKnownLocation(provider);
-        }
-
-        return location;
-    }
 }
