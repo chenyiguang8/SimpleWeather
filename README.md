@@ -1,5 +1,5 @@
 # SimpleWeather
-This is a project I build to practic MVP architecture
+This is a project I build to practice MVP architecture
 
 
 ## ScreenShots
@@ -11,7 +11,7 @@ This is a project I build to practic MVP architecture
 * more features will be added in the future...
 
 ### Known Bugs
-* fail to get the user's current locatioin
+* fail to get the user's current location
 
 
 ### Contribution
